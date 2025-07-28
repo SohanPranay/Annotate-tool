@@ -3,10 +3,11 @@ eventlet.monkey_patch()
 
 from flask import Flask, render_template
 from flask_socketio import SocketIO, emit
+import os
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
-socketio = SocketIO(app, async_mode='eventlet')  # eventlet mode required for Render
+socketio = SocketIO(app, async_mode='eventlet')
 
 @app.route('/')
 def index():
@@ -24,7 +25,8 @@ def handle_draw(data):
 def handle_clear_canvas():
     emit('clear_canvas', broadcast=True)
 
+# Only use this if running locally
 if __name__ == '__main__':
-    # Local testing only
-    print("Server is starting on http://localhost:5000")
-    socketio.run(app, host='0.0.0.0', port=5000)  # Use 0.0.0.0 for external access in dev
+    port = int(os.environ.get("PORT", 5000))  # Render will set $PORT
+    print(f"Server is starting on http://0.0.0.0:{port}")
+    socketio.run(app, host='0.0.0.0', port=port)
